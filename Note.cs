@@ -11,10 +11,11 @@ namespace WinFormsApp1
         public string Title { get; set; }
         public string Content { get; set; }
         public DateTime Date { get; set; }
-        public Note(string title, string content)
+        public Note(string title, string content, DateTime date)
         {
             Title = title;
             Content = content;
+            Date = date;
             Date = DateTime.Now;
         }
     }
