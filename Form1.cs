@@ -1,6 +1,6 @@
 namespace WinFormsApp1
 {
-    public class NoteForm : Form
+    public partial class NoteForm : Form
     {
         private NoteManager noteManager;
         private TextBox titleTextBox;
@@ -119,12 +119,6 @@ namespace WinFormsApp1
                 }
             }
         }
-        [STAThread]
-        static void Main()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new NoteForm());
-        }
+        
     }
 }

@@ -1,11 +1,14 @@
-﻿namespace WinFormsApp1
+﻿
+namespace WinFormsApp1
 {
-    partial class Form1
+    partial class NoteForm
     {
         /// <summary>
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+
+        public AutoScaleMode AutoScaleMode { get; private set; }
 
         /// <summary>
         ///  Clean up any resources being used.
