@@ -42,5 +42,41 @@ namespace TestProject2
             Assert.AreEqual("Новый текст", note.Content);
             Assert.AreEqual(new DateTime(2025, 12, 31), note.Date);
         }
+        
+        [TestMethod]
+        public void File_CorrectCreating()
+        {
+            var manager = new NoteManager();
+            var note = new Note("Удалить", "Тест", DateTime.Now);
+            
+            manager.AddNote(note);
+            
+            Assert.IsTrue(File.Exists(FileName))
+        }
+
+        [TestMethod]
+        public void File_AbleToRead()
+        {
+            var manager = new NoteManager();
+            manager.AddNote(new Note("Title", "Content", DateTime.Now));
+            
+            string text = File.ReadAllText(FileName);
+            
+            Assert.IsTrue(text.Length > 0);
+        }
+
+        [TestMethod]
+        public void File_CorrectSave()
+        {
+            string testText = "Hello, world!";
+            var manager = new NoteManager();
+            var note = new Note("Test", testText, DateTime.Now);
+            
+            manager.AddNote(note);
+            
+            string fileContent = File.ReadAllText(FileName);
+            
+            Assert.IsTrue(fileContent.Contains(testText));
+        }
     }
 }
