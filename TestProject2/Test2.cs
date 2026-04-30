@@ -65,18 +65,23 @@ namespace TestProject2
             Assert.IsTrue(text.Length > 0);
         }
 
-        [TestMethod]
-        public void File_CorrectSave()
+        [[TestMethod]
+        public void File_SaveAndLoad_CorrectStructure()
         {
-            string testText = "Hello, world!";
             var manager = new NoteManager();
-            var note = new Note("Test", testText, DateTime.Now);
-            
-            manager.AddNote(note);
-            
-            string fileContent = File.ReadAllText(FileName);
-            
-            Assert.IsTrue(fileContent.Contains(testText));
+            var originalNote = new Note("Test", "Hello, world!", DateTime.Now);
+
+            manager.AddNote(originalNote);
+
+            var loadedManager = new NoteManager();
+            loadedManager.LoadFromFile(FileName);
+
+            Assert.AreEqual(1, loadedManager.Notes.Count);
+
+            var loadedNote = loadedManager.Notes[0];
+
+            Assert.AreEqual(originalNote.Title, loadedNote.Title);
+            Assert.AreEqual(originalNote.Text, loadedNote.Text);
         }
     }
 }
