@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace WinFormsApp1
@@ -20,8 +21,27 @@ namespace WinFormsApp1
             {
                 throw new ArgumentNullException(nameof(note));
             }
-            Notes.Add(note);
-            SaveNotes();
+            else
+            {
+                if (note.Content.Length >= 1200)
+                {
+                    MessageBox.Show("Текст слишком длинный!");
+                }
+                else
+                {
+                    bool isMatchContent = Regex.IsMatch(note.Content, @"^[^\s]+$");
+                    bool isMatchTitle = Regex.IsMatch(note.Title, @"^[^\s]+$");
+                    if (isMatchContent == true && isMatchTitle == true)
+                    {
+                        Notes.Add(note);
+                        SaveNotes();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Поля не должны быть пустыми!");
+                    }
+                }
+            }
         }
         public void RemoveNote(Note note)
 
