@@ -10,7 +10,7 @@ namespace WinFormsApp1
         private Button removeNoteButton;
         public NoteForm()
         {
-            this.Text = "”Ô‡‚ÎÂÌËÂ Á‡ÏÂÚÍ‡ÏË";
+            this.Text = "–£–ø—Ä–∞–≤–ª–µ–Ω–∏–µ –∑–∞–º–µ—Ç–∫–∞–º–∏";
 
             this.Width = 500;
             this.Height = 400;
@@ -18,7 +18,7 @@ namespace WinFormsApp1
             {
                 Location = new System.Drawing.Point(10, 10),
                 Width = 200,
-                PlaceholderText = "«‡„ÓÎÓ‚ÓÍ"
+                PlaceholderText = "–ó–∞–≥–æ–ª–æ–≤–æ–∫"
             };
             contentTextBox = new TextBox
             {
@@ -27,12 +27,12 @@ namespace WinFormsApp1
                 Height = 100,
                 Multiline = true,
                 ScrollBars = ScrollBars.Both,
-                PlaceholderText = "—Ó‰ÂÊ‡ÌËÂ"
+                PlaceholderText = "–°–æ–¥–µ—Ä–∂–∞–Ω–∏–µ"
             };
             addNoteButton = new Button
             {
                 Location = new System.Drawing.Point(10, 150),
-                Text = "ƒÓ·‡‚ËÚ¸",
+                Text = "–î–æ–±–∞–≤–∏—Ç—å",
                 Width = 100
             };
             addNoteButton.Click += AddNoteButton_Click;
@@ -45,7 +45,7 @@ namespace WinFormsApp1
             removeNoteButton = new Button
             {
                 Location = new System.Drawing.Point(220, 220),
-                Text = "”‰‡ÎËÚ¸",
+                Text = "–£–¥–∞–ª–∏—Ç—å",
                 Width = 100
             };
             removeNoteButton.Click += RemoveNoteButton_Click;
@@ -70,7 +70,7 @@ namespace WinFormsApp1
         {
             if (string.IsNullOrEmpty(titleTextBox.Text) || string.IsNullOrEmpty(contentTextBox.Text))
             {
-                MessageBox.Show("«‡ÔÓÎÌËÚÂ ‚ÒÂ ÔÓÎˇ!");
+                MessageBox.Show("–ó–∞–ø–æ–ª–Ω–∏—Ç–µ –≤—Å–µ –ø–æ–ª—è!");
                 return;
             }
             Note newNote = new Note(titleTextBox.Text, contentTextBox.Text, DateTime.Now);
@@ -90,25 +90,28 @@ namespace WinFormsApp1
         {
             if (notesListBox.SelectedIndex == -1)
             {
-                MessageBox.Show("¬˚·ÂËÚÂ Á‡ÏÂÚÍÛ ‰Îˇ Û‰‡ÎÂÌËˇ!");
+                MessageBox.Show("–í—ã–±–µ—Ä–∏—Ç–µ –∑–∞–º–µ—Ç–∫—É –¥–ª—è —É–¥–∞–ª–µ–Ω–∏—è!");
                 return;
             }
             string selectedItem = notesListBox.SelectedItem.ToString();
+
+            
             string[] parts = selectedItem.Split(new[] { '(' }, StringSplitOptions.None);
             if (parts.Length >= 2)
             {
-                string title = parts[0];
-                DateTime date;
+                string title = parts[0].Trim();
+                string datePart = parts[1].Split(')')[0].Trim();
 
-                if (DateTime.TryParse(parts[1].Split(')')[0], out date))
+                if (DateTime.TryParse(datePart, out DateTime date))
                 {
-                    var noteToRemove = noteManager.Notes.Find(n => n.Title == title && n.Date.Date
+                    var noteToRemove = noteManager.Notes.Find(n => n.Title.Trim() == title && n.Date.Date
                     == date.Date);
                     if (noteToRemove != null)
                     {
                         try
                         {
                             noteManager.RemoveNote(noteToRemove);
+                            MessageBox.Show("–ó–∞–º–µ—Ç–∫–∞ —É–¥–∞–ª–µ–Ω–∞!");
                             UpdateNotesList();
                         }
                         catch (Exception ex)
