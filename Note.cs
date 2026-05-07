@@ -13,31 +13,8 @@ namespace WinFormsApp1
         public DateTime Date { get; set; }
         public Note(string title, string content, DateTime date)
         {
-            if (title == " ")
-            {
-                MessageBox.Show("Введите название!");
-            }
-            else
-            {
-                Title = title;
-            }
-
-            if (content.Length >= 1000)
-            {
-                MessageBox.Show("Заметка слишком длинная!");
-            }
-            else
-            {
-                if (content == " ")
-                {
-                    MessageBox.Show("Введите текст!");
-                }
-                else
-                {
-                    Content = content; 
-                }
-            }
-            Date = date;
+            Title = title;
+            Content = content; 
             Date = DateTime.Now;
         }
     }
