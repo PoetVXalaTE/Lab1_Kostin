@@ -1,0 +1,111 @@
+using System;
+using System.Collections.Generic;
+
+namespace WinFormsApp1
+{
+    public class TagManager
+    {
+        private NoteManager noteManager;
+
+        public TagManager(NoteManager nm)
+        {
+            noteManager = nm;
+        }
+        public void AddTag(Note note, string tag)
+        {
+            if (note == null || string.IsNullOrWhiteSpace(tag))
+                return;
+
+            string cleanTag = tag.Trim();
+
+            bool tagExists = false;
+            foreach (var existingTag in note.Tags)
+            {
+                if (existingTag.Equals(cleanTag, StringComparison.OrdinalIgnoreCase))
+                {
+                    tagExists = true;
+                    break;
+                }
+            }
+
+            if (!tagExists)
+            {
+                note.Tags.Add(cleanTag);
+                noteManager.SaveNotes();
+            }
+        }
+
+        public void RemoveTag(Note note, string tag)
+        {
+            if (note == null || string.IsNullOrWhiteSpace(tag))
+                return;
+
+            for (int i = note.Tags.Count - 1; i >= 0; i--)
+            {
+                if (note.Tags[i].Equals(tag, StringComparison.OrdinalIgnoreCase))
+                {
+                    note.Tags.RemoveAt(i);
+                }
+            }
+
+            noteManager.SaveNotes();
+        }
+
+        public List<string> GetAllTags()
+        {
+            List<string> allTags = new List<string>();
+
+            foreach (var note in noteManager.Notes)
+            {
+                foreach (var tag in note.Tags)
+                {
+                    bool alreadyAdded = false;
+                    foreach (var existing in allTags)
+                    {
+                        if (existing.Equals(tag, StringComparison.OrdinalIgnoreCase))
+                        {
+                            alreadyAdded = true;
+                            break;
+                        }
+                    }
+
+                    if (!alreadyAdded)
+                    {
+                        allTags.Add(tag);
+                    }
+                }
+            }
+            allTags.Sort();
+            return allTags;
+        }
+
+        public List<Note> FilterByTag(string tag)
+        {
+            List<Note> filteredNotes = new List<Note>();
+
+            if (string.IsNullOrWhiteSpace(tag))
+            {
+                // Возвращаем все заметки
+                foreach (var note in noteManager.Notes)
+                {
+                    filteredNotes.Add(note);
+                }
+                return filteredNotes;
+            }
+
+            foreach (var note in noteManager.Notes)
+            {
+                foreach (var noteTag in note.Tags)
+                {
+                    if (noteTag.Equals(tag, StringComparison.OrdinalIgnoreCase))
+                    {
+                        filteredNotes.Add(note);
+                        break; 
+                    }
+                }
+            }
+
+            return filteredNotes;
+        }
+    }
+}
