@@ -8,6 +8,7 @@ namespace WinFormsApp1
 {
     public class Note
     {
+        public List<string> Tags { get; set; } = new List<string>();
         public string Title { get; set; }
         public string Content { get; set; }
         public DateTime Date { get; set; }
@@ -15,7 +16,8 @@ namespace WinFormsApp1
         {
             Title = title;
             Content = content; 
-            Date = DateTime.Now;
+            Date = date;
+            Tags = new List<string>();
         }
     }
 }
