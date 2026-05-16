@@ -10,10 +10,12 @@ namespace WinFormsApp1
     public class NoteManager
     {
         public List<Note> Notes { get; private set; }
+        public TagManager TagManager { get; private set; }
         public NoteManager()
         {
             Notes = new List<Note>();
             LoadNotes();
+            TagManager = new TagManager(this);
         }
         public void AddNote(Note note)
         {
@@ -53,26 +55,47 @@ namespace WinFormsApp1
             Notes.Remove(note);
             SaveNotes();
         }
-        private void SaveNotes()
+        public void SaveNotes()
         {
-            File.WriteAllLines("notes.txt", Notes.Select(n =>
-            $"{n.Title}|{n.Content}|{n.Date.ToString("yyyy-MM-dd HH:mm:ss")}"));
+            List<string> lines = new List<string>();
+
+            foreach (var note in Notes)
+            {
+                string tagsString = note.Tags.Count > 0
+                    ? string.Join(";", note.Tags)
+                    : "";
+
+                string line = $"{note.Title}|{note.Content}|{note.Date:yyyy-MM-dd HH:mm:ss}|{tagsString}";
+                lines.Add(line);
+            }
+
+            File.WriteAllLines("notes.txt", lines);
         }
         private void LoadNotes()
         {
-            if (File.Exists("notes.txt"))
+            if (!File.Exists("notes.txt"))
+                return;
+
+            var lines = File.ReadAllLines("notes.txt");
+
+            foreach (var line in lines)
             {
-                var lines = File.ReadAllLines("notes.txt");
-                foreach (var line in lines)
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                var parts = line.Split('|');
+
+                if (parts.Length >= 3)
                 {
-                    var parts = line.Split('|');
-                    if (parts.Length == 3)
+                    if (DateTime.TryParse(parts[2], out DateTime date))
                     {
-                        DateTime date;
-                        if (DateTime.TryParse(parts[2], out date))
+                        var note = new Note(parts[0], parts[1], date);
+
+                        if (parts.Length > 3 && !string.IsNullOrEmpty(parts[3]))
                         {
-                            Notes.Add(new Note(parts[0], parts[1], date));
+                            note.Tags = parts[3].Split(';', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList();
                         }
+
+                        Notes.Add(note);
                     }
                 }
             }
