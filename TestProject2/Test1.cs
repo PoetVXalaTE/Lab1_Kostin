@@ -1,102 +1,116 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.IO;
-using System.Threading;
-using WinFormsApp1;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace TestProject2
+namespace WinFormsApp1.Tests
 {
     [TestClass]
-    public class NoteManagerTests
+    public class TagManagerTests
     {
-        private const string FileName = "notes.txt";
+        private NoteManager noteManager;
+        private TagManager tagManager;
 
         [TestInitialize]
-        public void TestInitialize()
+        public void Setup()
         {
-            ForceDeleteFile();
+            noteManager = new NoteManager();
+            tagManager = noteManager.TagManager;
         }
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            ForceDeleteFile();
-        }
-        private void ForceDeleteFile()
-        {
-            int maxRetries = 10;
-            for (int i = 0; i < maxRetries; i++)
-            {
-                try
-                {
-                    if (File.Exists(FileName))
-                    {
-                        File.Delete(FileName);
-                    }
-                    break;
-                }
-                catch (IOException)
-                {
-                    Thread.Sleep(500);
-                }
-            }
-        }
-
-        //Тест 1: Добавление заметки работает
         [TestMethod]
-        public void AddNote_AddsNote()
+        public void AddTag_ToNote_ShouldAddSuccessfully()
         {
-            var manager = new NoteManager();
-            var note = new Note("Тест", "Контент", DateTime.Now);
+            Note note = new Note("Тестовая заметка", "Текст", DateTime.Now);
 
-            manager.AddNote(note);
+            tagManager.AddTag(note, "Работа");
+            tagManager.AddTag(note, "Срочно");
 
-            Assert.AreEqual(1, manager.Notes.Count);
-            Assert.AreEqual("Тест", manager.Notes[0].Title);
+            Assert.AreEqual(2, note.Tags.Count);
+            Assert.IsTrue(note.Tags.Contains("Работа"));
+            Assert.IsTrue(note.Tags.Contains("Срочно"));
         }
 
-        //Тест 2: Добавление null выбрасывает ошибку
         [TestMethod]
-        public void AddNote_Null_ThrowsError()
+        public void AddTag_Duplicate_ShouldNotAddTwice()
         {
-            var manager = new NoteManager();
+            Note note = new Note("Заметка", "Текст", DateTime.Now);
 
-            Assert.ThrowsException<ArgumentNullException>(() => manager.AddNote(null));
+            tagManager.AddTag(note, "Учеба");
+            tagManager.AddTag(note, "Учеба"); 
+            tagManager.AddTag(note, "учеба");  
+
+            Assert.AreEqual(1, note.Tags.Count);
         }
 
-        //Тест 3: Удаление заметки работает
         [TestMethod]
-        public void RemoveNote_RemovesNote()
+        public void RemoveTag_ShouldRemoveCorrectly()
         {
-            var manager = new NoteManager();
-            var note = new Note("Удалить", "Тест", DateTime.Now);
-            manager.AddNote(note);
+            Note note = new Note("Заметка", "Текст", DateTime.Now);
+            tagManager.AddTag(note, "Работа");
+            tagManager.AddTag(note, "Личное");
+            tagManager.AddTag(note, "Идеи");
 
-            manager.RemoveNote(note);
+            tagManager.RemoveTag(note, "Личное");
 
-            Assert.AreEqual(0, manager.Notes.Count);
+            Assert.AreEqual(2, note.Tags.Count);
+            Assert.IsFalse(note.Tags.Contains("Личное"));
         }
 
-        //Тест 4: Удаление null выбрасывает ошибку
         [TestMethod]
-        public void RemoveNote_Null_ThrowsError()
+        public void GetAllTags_ShouldReturnUniqueSortedTags()
         {
-            var manager = new NoteManager();
+            Note note1 = new Note("1", "текст", DateTime.Now);
+            Note note2 = new Note("2", "текст", DateTime.Now);
 
-            Assert.ThrowsException<ArgumentNullException>(() => manager.RemoveNote(null));
+            tagManager.AddTag(note1, "Работа");
+            tagManager.AddTag(note1, "Идеи");
+            tagManager.AddTag(note2, "Работа");
+            tagManager.AddTag(note2, "Учеба");
+
+            List<string> allTags = tagManager.GetAllTags();
+
+            Assert.AreEqual(3, allTags.Count);
+            Assert.AreEqual("Идеи", allTags[0]);
+            Assert.AreEqual("Работа", allTags[1]);
+            Assert.AreEqual("Учеба", allTags[2]);
         }
 
-        //Тест 5: Можно добавить несколько заметок
         [TestMethod]
-        public void AddNote_MultipleNotes_AddsAll()
+        public void FilterByTag_ShouldReturnCorrectNotes()
         {
-            var manager = new NoteManager();
+            Note note1 = new Note("Заметка 1", "текст", DateTime.Now);
+            Note note2 = new Note("Заметка 2", "текст", DateTime.Now);
+            Note note3 = new Note("Заметка 3", "текст", DateTime.Now);
 
-            manager.AddNote(new Note("Первая", "Контент 1", DateTime.Now));
-            manager.AddNote(new Note("Вторая", "Контент 2", DateTime.Now));
-            manager.AddNote(new Note("Третья", "Контент 3", DateTime.Now));
+            tagManager.AddTag(note1, "Работа");
+            tagManager.AddTag(note2, "Работа");
+            tagManager.AddTag(note3, "Личное");
 
-            Assert.AreEqual(3, manager.Notes.Count);
+            var filtered = tagManager.FilterByTag("Работа");
+
+            Assert.AreEqual(2, filtered.Count);
+            Assert.IsTrue(filtered.Any(n => n.Title == "Заметка 1"));
+            Assert.IsTrue(filtered.Any(n => n.Title == "Заметка 2"));
+        }
+
+        [TestMethod]
+        public void SaveAndLoadNotes_ShouldPreserveTags()
+        {
+            Note note = new Note("Важная заметка", "Описание", DateTime.Now);
+            tagManager.AddTag(note, "Работа");
+            tagManager.AddTag(note, "Срочно");
+            noteManager.AddNote(note);
+
+            noteManager.SaveNotes(); 
+
+            var newManager = new NoteManager();
+            var loadedNote = newManager.Notes.FirstOrDefault(n => n.Title == "Важная заметка");
+
+            Assert.IsNotNull(loadedNote);
+            Assert.AreEqual(2, loadedNote.Tags.Count);
+            Assert.IsTrue(loadedNote.Tags.Contains("Работа"));
+            Assert.IsTrue(loadedNote.Tags.Contains("Срочно"));
         }
     }
 }
